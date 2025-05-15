@@ -1,22 +1,15 @@
 import { useState } from 'react';
 import './App.css';
 import HexBoard from './HexBoard';
+import { BOARD_MASK } from './boardShape';
 
-// Hex board dimensions (rows, cols)
-const HEX_ROWS = 7;
-const HEX_COLS = 7;
+const HEX_ROWS = BOARD_MASK.length;
+const HEX_COLS = BOARD_MASK[0].length;
 const START_POS = { x: 3, y: 3 };
 
-// Helper: Only fill valid hexes for a hex board
+// Create a grid matching BOARD_MASK: 0 = ice, null = hole
 function createHexGrid() {
-  // Middle row is full, outer rows are shorter
-  const mid = Math.floor(HEX_ROWS / 2);
-  return Array.from({ length: HEX_ROWS }, (v, row) => {
-    const minCol = Math.abs(mid - row);
-    return Array.from({ length: HEX_COLS }, (v, col) =>
-      col < minCol || col >= HEX_COLS - minCol ? null : 0
-    );
-  });
+  return BOARD_MASK.map(row => row.map(cell => (cell ? 0 : null)));
 }
 
 function App() {
