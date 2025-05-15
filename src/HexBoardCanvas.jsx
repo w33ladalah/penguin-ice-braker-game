@@ -3,10 +3,11 @@ import React, { useRef, useEffect } from 'react';
 import { BOARD_MASK } from './boardShape';
 
 const HEX_SIZE = 32; // px, radius of hexagon
+const HEX_GAP = 4; // px, space between hexes
 const HEX_HEIGHT = Math.sqrt(3) * HEX_SIZE;
 const HEX_WIDTH = 2 * HEX_SIZE;
-const HEX_HORIZ_SPACING = 1.5 * HEX_SIZE;
-const HEX_VERT_SPACING = HEX_HEIGHT;
+const HEX_HORIZ_SPACING = 1.5 * HEX_SIZE + HEX_GAP;
+const HEX_VERT_SPACING = HEX_HEIGHT + HEX_GAP;
 
 function hexCorner(center, size, i) {
   const angle_deg = 60 * i - 30;
