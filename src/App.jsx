@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import HexBoard from './HexBoard';
+import HexBoardCanvas from './HexBoardCanvas';
 import { BOARD_MASK } from './boardShape';
 
 const HEX_ROWS = BOARD_MASK.length;
@@ -48,6 +49,7 @@ function App() {
       style={{ outline: 'none' }}
     >
       <h1>Penguin Ice Breaker</h1>
+      <HexBoardCanvas />
       <HexBoard grid={grid} penguin={penguin} />
       <p>Use arrow keys to move the penguin and break the ice!</p>
     </div>
