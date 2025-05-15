@@ -36,6 +36,7 @@ function App() {
   }, [paused, gameMessage, musicMuted]);
 
   return (
+    <>
     <div className="game-container" style={{ outline: 'none', position: 'relative' }}>
       <h1>Penguin Ice Breaker</h1>
       <div style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8 }}>Score: {score}</div>
@@ -75,6 +76,10 @@ function App() {
       {/* Background music */}
       <audio ref={musicRef} src="/sounds/music.mp3" loop autoPlay style={{ display: 'none' }} muted={musicMuted} />
     </div>
+    <footer>
+      <p>&copy; {new Date().getFullYear()} - Created by <a href="https://github.com/w33ladalah">Hendro Wibowo</a></p>
+    </footer>
+    </>
   );
 }
 
