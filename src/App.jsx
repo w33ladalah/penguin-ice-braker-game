@@ -26,8 +26,8 @@ function App() {
     const newX = penguin.x + dx;
     const newY = penguin.y + dy;
     if (
-      newX >= 0 && newX < GRID_SIZE &&
-      newY >= 0 && newY < GRID_SIZE &&
+      newX >= 0 && newX < HEX_COLS &&
+      newY >= 0 && newY < HEX_ROWS &&
       grid[newY][newX] === 0
     ) {
       setPenguin({ x: newX, y: newY });
