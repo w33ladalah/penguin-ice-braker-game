@@ -6,8 +6,8 @@ const START_POS = { x: 3, y: 6 };
 
 function createInitialGrid() {
   // 0: ice, 1: broken
-  return Array.from({ length: GRID_SIZE }, (_, y) =>
-    Array.from({ length: GRID_SIZE }, (_, x) => 0)
+  return Array.from({ length: GRID_SIZE }, () =>
+    Array.from({ length: GRID_SIZE }, () => 0)
   );
 }
 
