@@ -3,7 +3,7 @@
 A fun and challenging hexagonal puzzle game built with React and Canvas.
 
 ## Game Objective
-Move the penguin around the ice, breaking each tile as you step on it. Try to break all the ice tiles without getting stuck!
+Move the penguin around the ice, breaking each tile as you step on it. Try to break all the ice tiles without getting stuck! You can try the demo [here](https://penguin.rzqlabs.cloud).
 
 ## Features
 - **Canvas-based hexagonal board rendering**
@@ -11,6 +11,8 @@ Move the penguin around the ice, breaking each tile as you step on it. Try to br
 - **Pause and Restart**: Pause/resume or restart the game at any time
 - **Win/Lose Messages**: Get notified when you win (all ice broken) or lose (no more moves)
 - **Keyboard & Mouse Controls**: Move with arrow keys, WASD, Q/E, or by clicking
+- **Sound Effects & Music**: Enjoy sound effects for breaking ice, winning, and losing, plus looping background music for a fun atmosphere
+- **Mute/Unmute Controls**: Easily mute or unmute music and sound effects from the UI
 
 ## Controls
 - **Arrow keys / WASD / Q/E**: Move the penguin in 6 directions
@@ -29,10 +31,24 @@ Move the penguin around the ice, breaking each tile as you step on it. Try to br
    ```
 3. Open your browser to the local address shown in the terminal.
 
+### Adding Custom Sounds & Music
+- Place your audio files in the `public/sounds` directory:
+  - `ice_break.mp3`   – plays when the penguin moves/breaks ice
+  - `win.mp3`         – plays when you win
+  - `lose.mp3`        – plays when you lose or get stuck
+  - `music.mp3`       – loops as background music during play
+- Supported formats: `.mp3`, `.wav`, `.ogg` (update the code if you use a different extension)
+- You can find free sounds at [Pixabay](https://pixabay.com/sound-effects/), [Freesound](https://freesound.org), or [Mixkit](https://mixkit.co/free-sound-effects/)
+
+### Audio Controls
+- Use the **Mute/Unmute Music** button to toggle background music
+- Sound effects are automatically muted when music is muted
+
 ## Project Structure
-- `src/HexBoardCanvas.jsx` - Main game logic and rendering
-- `src/App.jsx` - UI, state management, and controls
+- `src/HexBoardCanvas.jsx` - Main game logic, rendering, and sound effect triggers
+- `src/App.jsx` - UI, state management, music controls, and mute/unmute logic
 - `src/boardShape.js` - Board mask and layout
+- `public/sounds/` - Place your sound and music files here
 
 ## Credits
 - Penguin emoji by [Twitter Emoji](https://emojipedia.org/penguin)
