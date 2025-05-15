@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './App.css';
+import HexBoard from './HexBoard';
 
 // Hex board dimensions (rows, cols)
 const HEX_ROWS = 7;
@@ -54,35 +55,7 @@ function App() {
       style={{ outline: 'none' }}
     >
       <h1>Penguin Ice Breaker</h1>
-      <div className="grid">
-        {grid.map((row, y) => (
-          <div
-            className="row"
-            key={y}
-            style={{ marginLeft: `${Math.abs(Math.floor(grid.length / 2) - y) * 24}px` }} // offset for hex
-          >
-            {row.map((cell, x) =>
-              cell === null ? (
-                <div className="cell empty" key={x}></div>
-              ) : (
-                <div
-                  className={
-                    'cell hex ' +
-                    (penguin.x === x && penguin.y === y
-                      ? 'penguin'
-                      : cell === 1
-                      ? 'broken'
-                      : 'ice')
-                  }
-                  key={x}
-                >
-                  {penguin.x === x && penguin.y === y ? '🐧' : ''}
-                </div>
-              )
-            )}
-          </div>
-        ))}
-      </div>
+      <HexBoard grid={grid} penguin={penguin} />
       <p>Use arrow keys to move the penguin and break the ice!</p>
     </div>
   );
