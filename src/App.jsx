@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import './App.css';
 import HexBoardCanvas from './HexBoardCanvas';
 
 function App() {
-  const [score, setScore] = useState(1); // penguin starts on 1 cell
+  const [musicMuted, setMusicMuted] = useState(false);
+  const musicRef = useRef(null);
+
+  const [score, setScore] = useState(0); // penguin starts on 1 cell
   const [paused, setPaused] = useState(false);
   const [gameMessage, setGameMessage] = useState("");
   const [restartSignal, setRestartSignal] = useState(0);
@@ -22,11 +25,24 @@ function App() {
     setRestartSignal(s => s + 1);
   };
 
+  // Play/pause music on pause/game end
+  useEffect(() => {
+    if (!musicRef.current) return;
+    if (paused || gameMessage) {
+      musicRef.current.pause();
+    } else if (!musicMuted) {
+      musicRef.current.play().catch(()=>{});
+    }
+  }, [paused, gameMessage, musicMuted]);
+
   return (
     <div className="game-container" style={{ outline: 'none', position: 'relative' }}>
       <h1>Penguin Ice Breaker</h1>
       <div style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8 }}>Score: {score}</div>
       <div style={{ marginBottom: 12 }}>
+        <button onClick={() => setMusicMuted(m => !m)} style={{ marginRight: 8 }}>
+          {musicMuted ? 'Unmute Music' : 'Mute Music'}
+        </button>
         <button onClick={handlePause} style={{ marginRight: 8 }}>{paused ? 'Resume' : 'Pause'}</button>
         <button onClick={handleRestart}>Restart</button>
       </div>
@@ -36,6 +52,7 @@ function App() {
         onGameEnd={handleGameEnd}
         paused={paused}
         restartSignal={restartSignal}
+        musicMuted={musicMuted}
       />
       <p style={{ marginTop: 16 }}>Use arrow keys, WASD, Q/E or click to move the penguin and break the ice!</p>
       {gameMessage && (
@@ -55,6 +72,8 @@ function App() {
           <button onClick={handleRestart} style={{ marginTop: 24, fontSize: 20 }}>Restart</button>
         </div>
       )}
+      {/* Background music */}
+      <audio ref={musicRef} src="/sounds/music.mp3" loop autoPlay style={{ display: 'none' }} muted={musicMuted} />
     </div>
   );
 }

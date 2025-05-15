@@ -55,8 +55,14 @@ export default function HexBoardCanvas({
   onScore,
   onGameEnd,
   paused,
-  restartSignal
+  restartSignal,
+  musicMuted = false
 }) {
+  // Sound refs
+  const iceBreakRef = useRef(null);
+  const winRef = useRef(null);
+  const loseRef = useRef(null);
+
   // Board mask state
   const [boardMask, setBoardMask] = useState(() => getRandomBoardMask());
   // 0: ice, 1: broken
@@ -81,6 +87,24 @@ export default function HexBoardCanvas({
       setLastRestart(restartSignal);
     }
   }, [restartSignal, lastRestart]);
+
+  // Track winner for sound logic
+  const [winner, setWinner] = useState(null);
+
+  // Play win/lose sound
+  useEffect(() => {
+    if (!gameEnded) return;
+    // If player has won
+    if (winRef.current && winner === 'player' && !musicMuted) {
+      winRef.current.currentTime = 0;
+      winRef.current.play();
+    }
+    // If player is stuck (lost)
+    if (loseRef.current && winner === 'none' && !musicMuted) {
+      loseRef.current.currentTime = 0;
+      loseRef.current.play();
+    }
+  }, [gameEnded, winner, musicMuted]);
 
   // Check for stuck/lose/win after every move
   useEffect(() => {
@@ -115,15 +139,18 @@ export default function HexBoardCanvas({
     const broken = grid.flat().filter(x => x === 1).length;
     if (broken === totalIce) {
       setGameEnded(true);
+      setWinner('player');
       onGameEnd && onGameEnd('You win! 🎉');
       return;
     }
     // Lose: no moves
     if (getPossibleMoves(penguin, grid).length === 0) {
       setGameEnded(true);
+      setWinner('none');
       onGameEnd && onGameEnd('No more moves! You are stuck!');
       return;
     }
+    setWinner(null);
   }, [grid, penguin, gameEnded, onGameEnd, boardMask]);
 
   // Draw everything
@@ -200,9 +227,13 @@ export default function HexBoardCanvas({
         newGrid[newRow][newCol] = 1; // break ice
         return newGrid;
       });
+      if (iceBreakRef.current && !musicMuted) {
+        iceBreakRef.current.currentTime = 0;
+        iceBreakRef.current.play();
+      }
       onScore && onScore();
     }
-  }, [penguin, grid, paused, gameEnded, onScore, boardMask]);
+  }, [penguin, grid, paused, gameEnded, onScore, boardMask, musicMuted]);
 
   // Keyboard controls
   useEffect(() => {
@@ -258,6 +289,10 @@ export default function HexBoardCanvas({
         newGrid[row][col] = 1;
         return newGrid;
       });
+      if (iceBreakRef.current && !musicMuted) {
+        iceBreakRef.current.currentTime = 0;
+        iceBreakRef.current.play();
+      }
       onScore && onScore();
     }
   };
@@ -268,13 +303,18 @@ export default function HexBoardCanvas({
   const height = boardMask.length * HEX_VERT_SPACING * 0.87 + HEX_SIZE * 2;
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={width}
-      height={height}
-      style={{ background: '#b3e5fc', borderRadius: 12, display: 'block', margin: '0 auto', cursor: paused || gameEnded ? 'not-allowed' : 'pointer' }}
-      onClick={handleCanvasClick}
-      tabIndex={0}
-    />
+    <>
+      <audio ref={iceBreakRef} src="/sounds/ice_break.mp3" preload="auto" style={{ display: 'none' }} />
+      <audio ref={winRef} src="/sounds/win.mp3" preload="auto" style={{ display: 'none' }} />
+      <audio ref={loseRef} src="/sounds/lose.mp3" preload="auto" style={{ display: 'none' }} />
+      <canvas
+        ref={canvasRef}
+        width={width}
+        height={height}
+        style={{ background: '#b3e5fc', borderRadius: 12, display: 'block', margin: '0 auto', cursor: paused || gameEnded ? 'not-allowed' : 'pointer' }}
+        onClick={handleCanvasClick}
+        tabIndex={0}
+      />
+    </>
   );
 }
