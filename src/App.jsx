@@ -1,19 +1,26 @@
 import { useState } from 'react';
 import './App.css';
 
-const GRID_SIZE = 7;
-const START_POS = { x: 3, y: 6 };
+// Hex board dimensions (rows, cols)
+const HEX_ROWS = 7;
+const HEX_COLS = 7;
+const START_POS = { x: 3, y: 3 };
 
-function createInitialGrid() {
-  // 0: ice, 1: broken
-  return Array.from({ length: GRID_SIZE }, () =>
-    Array.from({ length: GRID_SIZE }, () => 0)
-  );
+// Helper: Only fill valid hexes for a hex board
+function createHexGrid() {
+  // Middle row is full, outer rows are shorter
+  const mid = Math.floor(HEX_ROWS / 2);
+  return Array.from({ length: HEX_ROWS }, (v, row) => {
+    const minCol = Math.abs(mid - row);
+    return Array.from({ length: HEX_COLS }, (v, col) =>
+      col < minCol || col >= HEX_COLS - minCol ? null : 0
+    );
+  });
 }
 
 function App() {
   const [penguin, setPenguin] = useState(START_POS);
-  const [grid, setGrid] = useState(createInitialGrid());
+  const [grid, setGrid] = useState(createHexGrid());
 
   const movePenguin = (dx, dy) => {
     const newX = penguin.x + dx;
@@ -49,22 +56,30 @@ function App() {
       <h1>Penguin Ice Breaker</h1>
       <div className="grid">
         {grid.map((row, y) => (
-          <div className="row" key={y}>
-            {row.map((cell, x) => (
-              <div
-                className={
-                  'cell ' +
-                  (penguin.x === x && penguin.y === y
-                    ? 'penguin'
-                    : cell === 1
-                    ? 'broken'
-                    : 'ice')
-                }
-                key={x}
-              >
-                {penguin.x === x && penguin.y === y ? '🐧' : ''}
-              </div>
-            ))}
+          <div
+            className="row"
+            key={y}
+            style={{ marginLeft: `${Math.abs(Math.floor(grid.length / 2) - y) * 24}px` }} // offset for hex
+          >
+            {row.map((cell, x) =>
+              cell === null ? (
+                <div className="cell empty" key={x}></div>
+              ) : (
+                <div
+                  className={
+                    'cell hex ' +
+                    (penguin.x === x && penguin.y === y
+                      ? 'penguin'
+                      : cell === 1
+                      ? 'broken'
+                      : 'ice')
+                  }
+                  key={x}
+                >
+                  {penguin.x === x && penguin.y === y ? '🐧' : ''}
+                </div>
+              )
+            )}
           </div>
         ))}
       </div>
