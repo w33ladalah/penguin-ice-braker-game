@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { BOARD_MASK } from './boardShape';
+import { getRandomBoardMask } from './boardShape';
 
 const HEX_SIZE = 32;
 const HEX_GAP = 6;
@@ -41,25 +41,7 @@ function getHexCenter(row, col) {
   return { x, y };
 }
 
-function getHexAtPos(x, y) {
-  // Brute force: check all centers, return closest if within HEX_SIZE
-  let minDist = HEX_SIZE;
-  let found = null;
-  for (let row = 0; row < BOARD_MASK.length; row++) {
-    for (let col = 0; col < BOARD_MASK[row].length; col++) {
-      if (!BOARD_MASK[row][col]) continue;
-      const center = getHexCenter(row, col);
-      const dx = x - center.x;
-      const dy = y - center.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < minDist) {
-        minDist = dist;
-        found = { row, col };
-      }
-    }
-  }
-  return found;
-}
+
 
 // Directions for 6-way movement: [dx, dy] (even/odd row offset)
 const HEX_DIRS = [
@@ -75,55 +57,61 @@ export default function HexBoardCanvas({
   paused,
   restartSignal
 }) {
+  // Board mask state
+  const [boardMask, setBoardMask] = useState(() => getRandomBoardMask());
   // 0: ice, 1: broken
   const [grid, setGrid] = useState(() =>
-    BOARD_MASK.map(row => row.map(cell => (cell ? 0 : null)))
+    boardMask.map(row => row.map(cell => (cell ? 0 : null)))
   );
-  const [penguin, setPenguin] = useState({ row: 3, col: 3 });
+  // Center cell
+  const center = { row: Math.floor(boardMask.length / 2), col: Math.floor(boardMask[0].length / 2) };
+  const [penguin, setPenguin] = useState(center);
   const [gameEnded, setGameEnded] = useState(false);
   const [lastRestart, setLastRestart] = useState(restartSignal);
 
   // Reset on restart
   useEffect(() => {
     if (restartSignal !== lastRestart) {
-      setGrid(BOARD_MASK.map(row => row.map(cell => (cell ? 0 : null))));
-      setPenguin({ row: 3, col: 3 });
+      const newMask = getRandomBoardMask();
+      setBoardMask(newMask);
+      setGrid(newMask.map(row => row.map(cell => (cell ? 0 : null))));
+      const center = { row: Math.floor(newMask.length / 2), col: Math.floor(newMask[0].length / 2) };
+      setPenguin(center);
       setGameEnded(false);
       setLastRestart(restartSignal);
     }
   }, [restartSignal, lastRestart]);
 
-  // Helper: get possible moves
-  function getPossibleMoves(penguin, grid) {
-    const even = penguin.row % 2 === 0;
-    let dirs = [
-      [1, 0], [-1, 0],
-      [0, 1], [0, -1],
-      even ? [1, -1] : [1, 1],
-      even ? [-1, -1] : [-1, 1],
-    ];
-    return dirs
-      .map(([dx, dy]) => {
-        const row = penguin.row + dy;
-        const col = penguin.col + dx;
-        if (
-          row >= 0 && row < BOARD_MASK.length &&
-          col >= 0 && col < BOARD_MASK[0].length &&
-          BOARD_MASK[row][col] &&
-          grid[row][col] === 0
-        ) {
-          return { row, col };
-        }
-        return null;
-      })
-      .filter(Boolean);
-  }
-
   // Check for stuck/lose/win after every move
   useEffect(() => {
     if (gameEnded) return;
+    // Helper: get possible moves
+    function getPossibleMoves(penguin, grid) {
+      const even = penguin.row % 2 === 0;
+      let dirs = [
+        [1, 0], [-1, 0],
+        [0, 1], [0, -1],
+        even ? [1, -1] : [1, 1],
+        even ? [-1, -1] : [-1, 1],
+      ];
+      return dirs
+        .map(([dx, dy]) => {
+          const row = penguin.row + dy;
+          const col = penguin.col + dx;
+          if (
+            row >= 0 && row < boardMask.length &&
+            col >= 0 && col < boardMask[0].length &&
+            boardMask[row][col] &&
+            grid[row][col] === 0
+          ) {
+            return { row, col };
+          }
+          return null;
+        })
+        .filter(Boolean);
+    }
     // Win: all ice broken except penguin's cell
-    const totalIce = BOARD_MASK.flat().filter(Boolean).length;
+    const totalIce = boardMask.flat().filter(Boolean).length;
     const broken = grid.flat().filter(x => x === 1).length;
     if (broken === totalIce) {
       setGameEnded(true);
@@ -136,7 +124,7 @@ export default function HexBoardCanvas({
       onGameEnd && onGameEnd('No more moves! You are stuck!');
       return;
     }
-  }, [grid, penguin, gameEnded, onGameEnd]);
+  }, [grid, penguin, gameEnded, onGameEnd, boardMask]);
 
   // Draw everything
   useEffect(() => {
@@ -144,9 +132,9 @@ export default function HexBoardCanvas({
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // Draw cells
-    for (let row = 0; row < BOARD_MASK.length; row++) {
-      for (let col = 0; col < BOARD_MASK[row].length; col++) {
-        if (!BOARD_MASK[row][col]) continue;
+    for (let row = 0; row < boardMask.length; row++) {
+      for (let col = 0; col < boardMask[row].length; col++) {
+        if (!boardMask[row][col]) continue;
         const center = getHexCenter(row, col);
         let color = ICE_COLOR;
         if (grid[row][col] === 1) color = BROKEN_COLOR;
@@ -185,7 +173,7 @@ export default function HexBoardCanvas({
       );
       ctx.restore();
     }
-  }, [grid, penguin, paused, gameEnded]);
+  }, [grid, penguin, paused, gameEnded, boardMask]);
 
   // Movement logic (6 directions)
   const movePenguin = useCallback((dirIdx) => {
@@ -201,9 +189,9 @@ export default function HexBoardCanvas({
     const newRow = penguin.row + dy;
     const newCol = penguin.col + dx;
     if (
-      newRow >= 0 && newRow < BOARD_MASK.length &&
-      newCol >= 0 && newCol < BOARD_MASK[0].length &&
-      BOARD_MASK[newRow][newCol] &&
+      newRow >= 0 && newRow < boardMask.length &&
+      newCol >= 0 && newCol < boardMask[0].length &&
+      boardMask[newRow][newCol] &&
       grid[newRow][newCol] === 0
     ) {
       setPenguin({ row: newRow, col: newCol });
@@ -214,7 +202,7 @@ export default function HexBoardCanvas({
       });
       onScore && onScore();
     }
-  }, [penguin, grid, paused, gameEnded, onScore]);
+  }, [penguin, grid, paused, gameEnded, onScore, boardMask]);
 
   // Keyboard controls
   useEffect(() => {
@@ -239,12 +227,28 @@ export default function HexBoardCanvas({
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const hex = getHexAtPos(x, y);
+    // getHexAtPos logic inlined here so we can access boardMask state
+    let minDist = HEX_SIZE;
+    let found = null;
+    for (let row = 0; row < boardMask.length; row++) {
+      for (let col = 0; col < boardMask[row].length; col++) {
+        if (!boardMask[row][col]) continue;
+        const center = getHexCenter(row, col);
+        const dx = x - center.x;
+        const dy = y - center.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < minDist) {
+          minDist = dist;
+          found = { row, col };
+        }
+      }
+    }
+    const hex = found;
     if (!hex) return;
     // Move penguin if valid
     const { row, col } = hex;
     if (
-      BOARD_MASK[row][col] &&
+      boardMask[row][col] &&
       grid[row][col] === 0 &&
       (Math.abs(row - penguin.row) <= 1 && Math.abs(col - penguin.col) <= 1)
     ) {
@@ -258,9 +262,10 @@ export default function HexBoardCanvas({
     }
   };
 
+
   // Canvas size based on board shape
-  const width = BOARD_MASK[0].length * HEX_HORIZ_SPACING + HEX_SIZE * 2;
-  const height = BOARD_MASK.length * HEX_VERT_SPACING * 0.87 + HEX_SIZE * 2;
+  const width = boardMask[0].length * HEX_HORIZ_SPACING + HEX_SIZE * 2;
+  const height = boardMask.length * HEX_VERT_SPACING * 0.87 + HEX_SIZE * 2;
 
   return (
     <canvas
