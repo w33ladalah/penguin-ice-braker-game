@@ -1,59 +1,63 @@
 import { useState } from 'react';
 import './App.css';
-import HexBoard from './HexBoard';
 import HexBoardCanvas from './HexBoardCanvas';
-import { BOARD_MASK } from './boardShape';
-
-const HEX_ROWS = BOARD_MASK.length;
-const HEX_COLS = BOARD_MASK[0].length;
-const START_POS = { x: 3, y: 3 };
-
-// Create a grid matching BOARD_MASK: 0 = ice, null = hole
-function createHexGrid() {
-  return BOARD_MASK.map(row => row.map(cell => (cell ? 0 : null)));
-}
 
 function App() {
-  const [penguin, setPenguin] = useState(START_POS);
-  const [grid, setGrid] = useState(createHexGrid());
+  const [score, setScore] = useState(1); // penguin starts on 1 cell
+  const [paused, setPaused] = useState(false);
+  const [gameMessage, setGameMessage] = useState("");
+  const [restartSignal, setRestartSignal] = useState(0);
 
-  const movePenguin = (dx, dy) => {
-    const newX = penguin.x + dx;
-    const newY = penguin.y + dy;
-    if (
-      newX >= 0 && newX < HEX_COLS &&
-      newY >= 0 && newY < HEX_ROWS &&
-      grid[newY][newX] === 0
-    ) {
-      setPenguin({ x: newX, y: newY });
-      setGrid(g => {
-        const newGrid = g.map(row => [...row]);
-        newGrid[newY][newX] = 1; // break ice
-        return newGrid;
-      });
-    }
-  };
-
-  const handleKey = e => {
-    if (e.key === 'ArrowUp') movePenguin(0, -1);
-    if (e.key === 'ArrowDown') movePenguin(0, 1);
-    if (e.key === 'ArrowLeft') movePenguin(-1, 0);
-    if (e.key === 'ArrowRight') movePenguin(1, 0);
+  // Handler to increase score
+  const handleScore = () => setScore(s => s + 1);
+  // Handler to end game
+  const handleGameEnd = (msg) => setGameMessage(msg);
+  // Handler to pause
+  const handlePause = () => setPaused(p => !p);
+  // Handler to restart
+  const handleRestart = () => {
+    setScore(1);
+    setPaused(false);
+    setGameMessage("");
+    setRestartSignal(s => s + 1);
   };
 
   return (
-    <div
-      className="game-container"
-      tabIndex={0}
-      onKeyDown={handleKey}
-      style={{ outline: 'none' }}
-    >
+    <div className="game-container" style={{ outline: 'none', position: 'relative' }}>
       <h1>Penguin Ice Breaker</h1>
-      <HexBoardCanvas />
-      <HexBoard grid={grid} penguin={penguin} />
-      <p>Use arrow keys to move the penguin and break the ice!</p>
+      <div style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8 }}>Score: {score}</div>
+      <div style={{ marginBottom: 12 }}>
+        <button onClick={handlePause} style={{ marginRight: 8 }}>{paused ? 'Resume' : 'Pause'}</button>
+        <button onClick={handleRestart}>Restart</button>
+      </div>
+      <HexBoardCanvas
+        score={score}
+        onScore={handleScore}
+        onGameEnd={handleGameEnd}
+        paused={paused}
+        restartSignal={restartSignal}
+      />
+      <p style={{ marginTop: 16 }}>Use arrow keys, WASD, Q/E or click to move the penguin and break the ice!</p>
+      {gameMessage && (
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          color: '#fff',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 32,
+          zIndex: 10
+        }}>
+          <div>{gameMessage}</div>
+          <button onClick={handleRestart} style={{ marginTop: 24, fontSize: 20 }}>Restart</button>
+        </div>
+      )}
     </div>
   );
 }
+
 
 export default App;
