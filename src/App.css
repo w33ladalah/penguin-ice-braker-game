@@ -22,20 +22,38 @@
   align-items: center;
   justify-content: center;
   font-size: 1.7rem;
-  border-radius: 6px;
-  border: 1px solid #b2e0f7;
+  border: 1.5px solid #b2e0f7;
   background: #e0f7fa;
   transition: background 0.2s;
+  margin: 0 -3px;
+  position: relative;
 }
-.cell.ice {
+.cell.hex {
+  clip-path: polygon(
+    25% 5%, 75% 5%,
+    100% 50%, 75% 95%,
+    25% 95%, 0% 50%
+  );
   background: #e0f7fa;
 }
+.cell.empty {
+  background: transparent;
+  border: none;
+  clip-path: none;
+}
+
+.cell.ice {
+  background: #e0f7fa;
+  box-shadow: 0 2px 8px #b2e0f7 inset;
+}
 .cell.broken {
-  background: #bdbdbd;
+  background: #d1d1d1;
+  box-shadow: 0 2px 8px #bdbdbd inset;
 }
 .cell.penguin {
   background: #90caf9;
-  border: 2px solid #1976d2;
+  border: 2.5px solid #1976d2;
+  z-index: 2;
 }
 h1 {
   font-family: 'Comic Sans MS', 'Comic Sans', cursive;
