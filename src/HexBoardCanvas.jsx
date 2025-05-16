@@ -55,8 +55,7 @@ export default function HexBoardCanvas({
   onScore,
   onGameEnd,
   paused,
-  restartSignal,
-  musicMuted = false
+  restartSignal
 }) {
   // Sound refs
   const iceBreakRef = useRef(null);
@@ -97,16 +96,16 @@ export default function HexBoardCanvas({
   useEffect(() => {
     if (!gameEnded) return;
     // If player has won
-    if (winRef.current && winner === 'player' && !musicMuted) {
+    if (winRef.current && winner === 'player') {
       winRef.current.currentTime = 0;
       winRef.current.play();
     }
     // If player is stuck (lost)
-    if (loseRef.current && winner === 'none' && !musicMuted) {
+    if (loseRef.current && winner === 'none') {
       loseRef.current.currentTime = 0;
       loseRef.current.play();
     }
-  }, [gameEnded, winner, musicMuted]);
+  }, [gameEnded, winner]);
 
   // Update allowed moves whenever penguin or grid changes
   useEffect(() => {
@@ -264,13 +263,13 @@ export default function HexBoardCanvas({
         newGrid[newRow][newCol] = 1; // break ice
         return newGrid;
       });
-      if (iceBreakRef.current && !musicMuted) {
+      if (iceBreakRef.current) {
         iceBreakRef.current.currentTime = 0;
         iceBreakRef.current.play();
       }
       onScore && onScore();
     }
-  }, [penguin, grid, paused, gameEnded, onScore, boardMask, musicMuted]);
+  }, [penguin, grid, paused, gameEnded, onScore, boardMask]);
 
   // Keyboard controls
   useEffect(() => {
@@ -326,7 +325,7 @@ export default function HexBoardCanvas({
         newGrid[row][col] = 1;
         return newGrid;
       });
-      if (iceBreakRef.current && !musicMuted) {
+      if (iceBreakRef.current) {
         iceBreakRef.current.currentTime = 0;
         iceBreakRef.current.play();
       }
