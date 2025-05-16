@@ -2,11 +2,11 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { getRandomBoardMask } from './boardShape';
 
 const HEX_SIZE = 32;
-const HEX_GAP = 6;
+const HEX_GAP_H = 6;
+const HEX_GAP_V = 1.5;
 const HEX_HEIGHT = Math.sqrt(3) * HEX_SIZE;
-const HEX_WIDTH = 2 * HEX_SIZE;
-const HEX_HORIZ_SPACING = 1.5 * HEX_SIZE + HEX_GAP;
-const HEX_VERT_SPACING = HEX_HEIGHT + 1.5;
+const HEX_HORIZ_SPACING = 1.5 * HEX_SIZE + HEX_GAP_H;
+const HEX_VERT_SPACING = HEX_HEIGHT + HEX_GAP_V;
 const PENGUIN_COLOR = '#1976d2';
 const ICE_COLOR = '#e0f7fa';
 const BROKEN_COLOR = '#d1d1d1';
@@ -144,7 +144,9 @@ export default function HexBoardCanvas({
       return;
     }
     // Lose: no moves
-    if (getPossibleMoves(penguin, grid).length === 0) {
+    const possibleMoves = getPossibleMoves(penguin, grid);
+    console.log("possibleMoves", possibleMoves);
+    if (possibleMoves.length === 0) {
       setGameEnded(true);
       setWinner('none');
       onGameEnd && onGameEnd('No more moves! You are stuck!');

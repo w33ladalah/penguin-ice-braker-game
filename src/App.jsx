@@ -3,7 +3,7 @@ import './App.css';
 import HexBoardCanvas from './HexBoardCanvas';
 
 function App() {
-  const [musicMuted, setMusicMuted] = useState(false);
+  const [musicMuted] = useState(false);
   const musicRef = useRef(null);
 
   const [score, setScore] = useState(0); // penguin starts on 1 cell
@@ -16,10 +16,10 @@ function App() {
   // Handler to end game
   const handleGameEnd = (msg) => setGameMessage(msg);
   // Handler to pause
-  const handlePause = () => setPaused(p => !p);
+  // const handlePause = () => setPaused(p => !p);
   // Handler to restart
   const handleRestart = () => {
-    setScore(1);
+    setScore(0);
     setPaused(false);
     setGameMessage("");
     setRestartSignal(s => s + 1);
@@ -41,11 +41,11 @@ function App() {
       <h1>Penguin Ice Breaker</h1>
       <div style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8 }}>Score: {score}</div>
       <div style={{ marginBottom: 12 }}>
-        <button onClick={() => setMusicMuted(m => !m)} style={{ marginRight: 8 }}>
+        {/* <button onClick={() => setMusicMuted(m => !m)} style={{ marginRight: 8 }}>
           {musicMuted ? 'Unmute Music' : 'Mute Music'}
-        </button>
-        <button onClick={handlePause} style={{ marginRight: 8 }}>{paused ? 'Resume' : 'Pause'}</button>
-        <button onClick={handleRestart}>Restart</button>
+        </button> */}
+        {/* <button onClick={handlePause} style={{ marginRight: 8 }}>{paused ? 'Resume' : 'Pause'}</button> */}
+        <button onClick={handleRestart}>Change Board</button>
       </div>
       <HexBoardCanvas
         score={score}

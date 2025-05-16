@@ -3,7 +3,7 @@
 A fun and challenging hexagonal puzzle game built with React and Canvas.
 
 ## Game Objective
-Move the penguin around the ice, breaking each tile as you step on it. Try to break all the ice tiles without getting stuck! You can try the demo [here](https://penguin.rzqlabs.cloud).
+Move the penguin around the ice, breaking each tile as you step on it. Try to break all the ice tiles without getting stuck!
 
 ## Features
 - **Canvas-based hexagonal board rendering**
