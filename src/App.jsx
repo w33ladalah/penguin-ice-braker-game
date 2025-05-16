@@ -3,7 +3,7 @@ import './App.css';
 import HexBoardCanvas from './HexBoardCanvas';
 
 function App() {
-  const [musicMuted] = useState(false);
+  const [musicMuted, setMusicMuted] = useState(true);
   const musicRef = useRef(null);
 
   const [score, setScore] = useState(0); // penguin starts on 1 cell
@@ -41,9 +41,9 @@ function App() {
       <h1>Penguin Ice Breaker</h1>
       <div style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8 }}>Score: {score}</div>
       <div style={{ marginBottom: 12 }}>
-        {/* <button onClick={() => setMusicMuted(m => !m)} style={{ marginRight: 8 }}>
+        <button onClick={() => setMusicMuted(m => !m)} style={{ marginRight: 8 }}>
           {musicMuted ? 'Unmute Music' : 'Mute Music'}
-        </button> */}
+        </button>
         {/* <button onClick={handlePause} style={{ marginRight: 8 }}>{paused ? 'Resume' : 'Pause'}</button> */}
         <button onClick={handleRestart}>Change Board</button>
       </div>
@@ -74,7 +74,7 @@ function App() {
         </div>
       )}
       {/* Background music */}
-      <audio ref={musicRef} src="/sounds/music.mp3" loop autoPlay style={{ display: 'none' }} muted={musicMuted} />
+      <audio ref={musicRef} src="/sounds/music.mp3" loop autoPlay preload="auto" volume={0.5} style={{ display: 'none' }} muted={musicMuted} />
     </div>
     <footer>
       <p>&copy; {new Date().getFullYear()} - Created by <a href="https://github.com/w33ladalah">Hendro Wibowo</a></p>
