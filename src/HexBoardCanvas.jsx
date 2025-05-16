@@ -74,6 +74,8 @@ export default function HexBoardCanvas({
   const [penguin, setPenguin] = useState(center);
   const [gameEnded, setGameEnded] = useState(false);
   const [lastRestart, setLastRestart] = useState(restartSignal);
+  // Allowed moves for highlight
+  const [allowedMoves, setAllowedMoves] = useState([]);
 
   // Reset on restart
   useEffect(() => {
@@ -105,6 +107,39 @@ export default function HexBoardCanvas({
       loseRef.current.play();
     }
   }, [gameEnded, winner, musicMuted]);
+
+  // Update allowed moves whenever penguin or grid changes
+  useEffect(() => {
+    if (gameEnded) {
+      setAllowedMoves([]);
+      return;
+    }
+    function getPossibleMoves(penguin, grid) {
+      const even = penguin.row % 2 === 0;
+      let dirs = [
+        [1, 0], [-1, 0],
+        [0, 1], [0, -1],
+        even ? [1, -1] : [1, 1],
+        even ? [-1, -1] : [-1, 1],
+      ];
+      return dirs
+        .map(([dx, dy]) => {
+          const row = penguin.row + dy;
+          const col = penguin.col + dx;
+          if (
+            row >= 0 && row < boardMask.length &&
+            col >= 0 && col < boardMask[0].length &&
+            boardMask[row][col] &&
+            grid[row][col] === 0
+          ) {
+            return { row, col };
+          }
+          return null;
+        })
+        .filter(Boolean);
+    }
+    setAllowedMoves(getPossibleMoves(penguin, grid));
+  }, [penguin, grid, gameEnded, boardMask]);
 
   // Check for stuck/lose/win after every move
   useEffect(() => {
@@ -303,6 +338,18 @@ export default function HexBoardCanvas({
   // Canvas size based on board shape
   const width = boardMask[0].length * HEX_HORIZ_SPACING + HEX_SIZE * 2;
   const height = boardMask.length * HEX_VERT_SPACING * 0.87 + HEX_SIZE * 2;
+
+  // Highlight allowed moves on canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    // Draw highlight after drawing the board
+    allowedMoves.forEach(({ row, col }) => {
+      const center = getHexCenter(row, col);
+      drawHex(ctx, center, HEX_SIZE - 4, 'rgba(255, 255, 0, 0.25)', '#ffe082'); // yellow highlight
+    });
+  }, [allowedMoves, boardMask]);
 
   return (
     <>
